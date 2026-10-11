@@ -16,8 +16,10 @@
 - [ ] Mô tả PR có mục tiêu, acceptance criteria và cách test.
 - [ ] Không để secret trong source hoặc commit.
 - [ ] CI build/typecheck/test xanh.
-- [ ] Có ít nhất một approval từ thành viên khác trước khi merge vào `develop`.
+- [ ] Có ít nhất 01 approval từ thành viên khác trước khi merge vào `develop`.
 
-## Quy tắc bảo vệ
+## GitHub enforcement
 
-Branch protection được cấu hình trên GitHub cho `develop` với required approving reviews = 1, dismiss stale reviews = true và required conversation resolution = true. `main` là production branch, chỉ nhận thay đổi đã tích hợp qua release PR.
+Workflow `.github/workflows/gitflow-policy.yml` sẽ kiểm tra PR vào `develop`: branch phải bắt đầu bằng `feature/` và phải có ít nhất một approval từ reviewer khác tác giả. GitHub API đã từ chối bật branch protection trực tiếp cho private repository trên plan hiện tại với thông báo cần GitHub Pro hoặc repository public. Khi repository được nâng plan hoặc chuyển public, bật thêm branch protection cho `develop` với `required_approving_review_count: 1`, dismiss stale reviews và required conversation resolution.
+
+`main` là production branch; chỉ nhận thay đổi đã tích hợp qua release PR.
