@@ -1,0 +1,13 @@
+{
+  "branch": "feature/S3-04-be-student-profile",
+  "team": "BE",
+  "storyId": "S3-04",
+  "baseBranch": "develop",
+  "scopeFiles": [
+    "backend/src/modules/S3-04-be-student-profile/module.ts",
+    "backend/src/modules/S3-04-be-student-profile/controller.ts",
+    "backend/src/modules/S3-04-be-student-profile/service.ts",
+    "branches/BE/S3-04-be-student-profile/README.md"
+  ],
+  "integration": "Open PR into develop; require at least one reviewer approval."
+}
