@@ -129,3 +129,14 @@
 - Seed được một lớp pilot chạy đủ chu trình để nghiệm thu Sprint 8.
 - Có test cho Student, TA, Instructor, Admissions, Accountant, Training Manager và Admin; Guest chỉ được public consultation.
 - Dữ liệu và thông báo dùng múi giờ `Asia/Ho_Chi_Minh`, tiền VND; file upload qua object-storage adapter.
+
+## Cập nhật sau audit — core backend/UI interaction
+
+Đã bổ sung sau vòng audit:
+
+- JWT login/refresh rotation/logout/change-password ở NestJS.
+- API thao tác pilot cho chương trình, lead, lớp, lịch, điểm danh hàng loạt, bài tập/nộp bài, payment receipt và notifications.
+- Quick Actions mở form thật; CTA ở Reports, Calendar, Filters, table overflow, settings và logout đều có phản hồi.
+- Role switcher đã có đủ 8 vai trò nghiệp vụ theo workbook (Guest không xuất hiện trong menu nội bộ).
+
+Giới hạn còn lại để đạt production DoD: thay in-memory pilot store bằng repository PostgreSQL/transaction, thêm guards/scope server cho từng route, queue email/object storage, integration tests và hoàn thiện các story P0 còn lại.

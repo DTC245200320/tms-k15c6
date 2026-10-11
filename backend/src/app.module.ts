@@ -1,6 +1,9 @@
 import { Controller, Get, Module } from '@nestjs/common'
 import { AUTH_ROUTES } from './auth/auth.contract'
 import { PilotController } from './api/pilot.controller'
+import { JwtModule } from '@nestjs/jwt'
+import { AuthController } from './auth/auth.controller'
+import { AuthService } from './auth/auth.service'
 
 @Controller()
 class HealthController {
@@ -10,5 +13,5 @@ class HealthController {
   }
 }
 
-@Module({ controllers: [HealthController, PilotController] })
+@Module({ imports: [JwtModule.register({ secret: process.env.JWT_ACCESS_SECRET ?? 'tms-dev-secret-change-me' })], controllers: [HealthController, PilotController, AuthController], providers: [AuthService] })
 export class AppModule {}

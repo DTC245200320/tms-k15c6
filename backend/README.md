@@ -40,3 +40,11 @@ Copy `.env.example` to `.env`, run `docker compose up postgres backend frontend 
 - `GET /api/v1/health/modules`: coverage contract của 9 epic, 75 story và 8 role.
 
 > Đây là foundation/pilot API. Trước production cần nối repository PostgreSQL, JWT guard, refresh rotation, queue email và object storage theo Definition of Done trong workbook.
+
+## JWT API đã hoạt động
+
+- `POST /auth/login`: trả access token 15 phút và refresh token 7 ngày.
+- `POST /auth/refresh`: kiểm tra, xoay vòng và thu hồi refresh token cũ.
+- `POST /auth/logout`: thu hồi refresh token.
+- `POST /auth/change-password`: kiểm tra mật khẩu hiện tại và chính sách chữ + số, tối thiểu 8 ký tự.
+- CRUD pilot: `/api/v1/programs`, `/api/v1/leads`, `/api/v1/classes`, `/api/v1/schedule`, `/api/v1/attendance`, `/api/v1/assignments`, `/api/v1/finance/payments`, `/api/v1/notifications`.
