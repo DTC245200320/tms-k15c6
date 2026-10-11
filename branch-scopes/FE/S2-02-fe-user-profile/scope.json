@@ -1,0 +1,13 @@
+{
+  "branch": "feature/S2-02-fe-user-profile",
+  "team": "FE",
+  "storyId": "S2-02",
+  "baseBranch": "develop",
+  "scopeFiles": [
+    "frontend/src/features/S2-02-fe-user-profile/feature.config.ts",
+    "frontend/src/features/S2-02-fe-user-profile/api.ts",
+    "frontend/src/features/S2-02-fe-user-profile/screen.tsx",
+    "branches/FE/S2-02-fe-user-profile/README.md"
+  ],
+  "integration": "Open PR into develop; require at least one reviewer approval."
+}
