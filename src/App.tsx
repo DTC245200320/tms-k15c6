@@ -167,6 +167,20 @@ function ActionModal({ type, onClose, onSaved }: { type: ActionType; onClose: ()
   return <div className="modal-backdrop" onMouseDown={onClose}><form className="action-modal" onSubmit={save} onMouseDown={(event) => event.stopPropagation()}><div className="modal-heading"><div><p className="eyebrow">INTERACTIVE DEMO</p><h2>{config.title}</h2><p>{config.description}</p></div><button type="button" className="icon-button" onClick={onClose}><X size={18} /></button></div><div className="modal-fields">{config.fields.map((field, index) => <label key={field}>{field}<input required value={values[field] ?? ''} onChange={(event) => setValues({ ...values, [field]: event.target.value })} placeholder={index === 0 ? 'Nhập thông tin...' : 'Chọn hoặc nhập giá trị'} /></label>)}</div><div className="modal-actions"><button type="button" className="button button-ghost" onClick={onClose}>Hủy</button><button type="submit" className="button button-dark"><Check size={15} />{config.submit}</button></div></form></div>
 }
 
+function LoginView({ onLogin }: { onLogin: () => void }) {
+  const [email, setEmail] = useState('linh.tran@tms.edu.vn')
+  const [password, setPassword] = useState('')
+  const [remember, setRemember] = useState(true)
+  const [error, setError] = useState('')
+  const submit = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+    if (!email || password.length < 4) { setError('Vui lòng nhập email và mật khẩu tối thiểu 4 ký tự.'); return }
+    if (remember) window.sessionStorage.setItem('tms_session', 'demo-access-token')
+    onLogin()
+  }
+  return <div className="login-page"><div className="login-glow glow-one" /><div className="login-glow glow-two" /><div className="login-brand"><Logo /><span className="secure-chip"><ShieldCheck size={14} /> JWT protected workspace</span></div><div className="login-layout"><section className="login-story"><p className="eyebrow light">TRAINING OPERATING SYSTEM</p><h1>Đăng nhập để<br /><em>giữ nhịp đào tạo.</em></h1><p>Điều hành tuyển sinh, lớp học và trải nghiệm học viên trong một control room thống nhất.</p><div className="login-story-stats"><span><strong>642</strong><small>học viên đang học</small></span><span><strong>18</strong><small>lớp đang chạy</small></span><span><strong>92,4%</strong><small>chuyên cần</small></span></div></section><form className="login-card" onSubmit={submit}><div className="login-card-heading"><p className="eyebrow">WELCOME BACK</p><h2>Chào Linh.</h2><p>Đăng nhập vào workspace <strong>TTCS · K15C6</strong></p></div><label>Email công việc<input type="email" value={email} onChange={(event) => setEmail(event.target.value)} placeholder="ten@tms.edu.vn" autoComplete="email" /></label><label>Mật khẩu<div className="password-field"><input type="password" value={password} onChange={(event) => setPassword(event.target.value)} placeholder="Nhập mật khẩu" autoComplete="current-password" /><span><ShieldCheck size={15} /></span></div></label><div className="login-options"><label className="checkbox-label"><input type="checkbox" checked={remember} onChange={(event) => setRemember(event.target.checked)} /> Ghi nhớ phiên đăng nhập</label><button type="button" className="link-button" onClick={() => setError('Đã gửi hướng dẫn đặt lại mật khẩu đến email demo.')}>Quên mật khẩu?</button></div>{error && <p className="login-error">{error}</p>}<button className="button button-dark login-submit" type="submit">Đăng nhập workspace <ArrowUpRight size={16} /></button><div className="login-divider"><span>hoặc tiếp tục với</span></div><button type="button" className="sso-button" onClick={() => { setPassword('demo'); onLogin() }}><span className="sso-mark">G</span> Đăng nhập Google Workspace</button><p className="login-footnote"><ShieldCheck size={13} /> Access Token + Refresh Token · RBAC enabled</p></form></div><p className="login-copyright">TMS Portal · TTCS K15C6 <span>·</span> Hệ thống quản lý đào tạo</p></div>
+}
+
 function SectionHeading({ eyebrow, title, description, action, onAction }: { eyebrow: string; title: string; description?: string; action?: string; onAction?: () => void }) {
   return (
     <div className="section-heading">
@@ -300,6 +314,7 @@ function UsersView({ onToast }: { onToast: (text: string) => void }) {
 }
 
 export default function App() {
+  const [authenticated, setAuthenticated] = useState(() => window.sessionStorage.getItem('tms_session') === 'demo-access-token')
   const [view, setView] = useState<ViewKey>('dashboard')
   const [role, setRole] = useState<Role>('Quản lý đào tạo')
   const [mobileOpen, setMobileOpen] = useState(false)
@@ -345,6 +360,8 @@ export default function App() {
       default: return <DashboardView onNavigate={navigate} onToast={showToast} />
     }
   }
+
+  if (!authenticated) return <LoginView onLogin={() => setAuthenticated(true)} />
 
   return (
     <div className="app-shell">
