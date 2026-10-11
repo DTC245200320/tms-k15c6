@@ -39,3 +39,11 @@ npm run build
 ```
 
 Khởi chạy toàn bộ service bằng `docker compose up --build`. Chi tiết branch mapping theo từng story nằm trong `branches/FE`, `branches/BE`; quy chuẩn cộng tác đầy đủ ở [`docs/git-flow.md`](docs/git-flow.md).
+
+## Feature source scaffold
+
+Mỗi branch trong `branches/FE` và `branches/BE` có thư mục source tương ứng. Frontend sample nằm ở `frontend/src/features/<branch-folder>` với `feature.config.ts`, `api.ts`, `screen.tsx`; backend sample nằm ở `backend/src/modules/<branch-folder>` với `module.ts`, `controller.ts`, `service.ts`. Đây là điểm bắt đầu độc lập cho từng story, không thay thế acceptance criteria của story.
+
+## Interactive preview
+
+Dashboard hiện hỗ trợ điều hướng theo module, lọc pipeline, đổi góc nhìn RBAC, responsive menu, mở form thao tác nhanh và submit các form demo. Dữ liệu form đang lưu ở phiên client để review UX; khi story BE hoàn thành, thay `api.ts` bằng HTTP client tới endpoint NestJS và thêm persistence PostgreSQL.

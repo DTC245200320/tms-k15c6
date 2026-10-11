@@ -1,4 +1,4 @@
-import { useMemo, useState, type ReactNode } from 'react'
+import { useMemo, useState, type FormEvent, type ReactNode } from 'react'
 import {
   ArrowDownRight,
   ArrowUpRight,
@@ -143,6 +143,30 @@ function MiniSparkline({ color = 'mint', down = false }: { color?: StatusTone; d
   return <div className={`mini-sparkline ${color} ${down ? 'down' : ''}`} aria-hidden="true"><span /><span /><span /><span /><span /><span /><span /></div>
 }
 
+type ActionType = 'quick' | 'lead' | 'class' | 'attendance' | 'assignment' | 'payment' | 'account'
+
+const actionCopy: Record<Exclude<ActionType, 'quick'>, { title: string; description: string; fields: string[]; submit: string }> = {
+  lead: { title: 'Tạo lead mới', description: 'Thêm một tín hiệu tuyển sinh vào pipeline để đội tư vấn tiếp tục chăm sóc.', fields: ['Họ và tên', 'Số điện thoại', 'Chương trình quan tâm'], submit: 'Tạo lead' },
+  class: { title: 'Mở lớp mới', description: 'Khởi tạo lớp từ catalogue chương trình và gán giảng viên phụ trách.', fields: ['Mã lớp', 'Chương trình', 'Giảng viên phụ trách'], submit: 'Mở lớp' },
+  attendance: { title: 'Điểm danh buổi học', description: 'Cập nhật nhanh trạng thái tham dự cho lớp đang diễn ra.', fields: ['Lớp học', 'Buổi học', 'Ghi chú ngoại lệ'], submit: 'Lưu điểm danh' },
+  assignment: { title: 'Tạo bài tập', description: 'Giao một bài tập mới và đặt hạn nộp cho học viên.', fields: ['Tên bài tập', 'Lớp học', 'Hạn nộp'], submit: 'Tạo bài tập' },
+  payment: { title: 'Ghi nhận thanh toán', description: 'Lưu khoản thu vào sổ công nợ và phát hành biên lai.', fields: ['Học viên', 'Số tiền', 'Phương thức thanh toán'], submit: 'Ghi nhận khoản thu' },
+  account: { title: 'Thêm tài khoản', description: 'Tạo tài khoản và gán vai trò theo nguyên tắc RBAC.', fields: ['Họ và tên', 'Email công việc', 'Vai trò'], submit: 'Tạo tài khoản' },
+}
+
+function ActionModal({ type, onClose, onSaved }: { type: ActionType; onClose: () => void; onSaved: (message: string) => void }) {
+  const [values, setValues] = useState<Record<string, string>>({})
+  const save = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+    const config = type === 'quick' ? null : actionCopy[type]
+    onClose()
+    onSaved(config ? `${config.title} đã được lưu vào phiên demo.` : 'Đã chọn một tác vụ nhanh cho workspace.')
+  }
+  if (type === 'quick') return <div className="modal-backdrop" onMouseDown={onClose}><div className="action-modal quick-modal" onMouseDown={(event) => event.stopPropagation()}><div className="modal-heading"><div><p className="eyebrow">QUICK ACTIONS</p><h2>Chọn việc cần làm</h2><p>Mở đúng form thay vì chỉ xem thông báo.</p></div><button className="icon-button" onClick={onClose}><X size={18} /></button></div><div className="quick-actions"><button onClick={() => onSaved('Đã chọn form tạo lead mới.')}><Target size={17} /><span><strong>Tạo lead</strong><small>Thêm tín hiệu vào pipeline</small></span><ArrowUpRight size={14} /></button><button onClick={() => onSaved('Đã chọn form mở lớp mới.')}><BookOpen size={17} /><span><strong>Mở lớp</strong><small>Khởi tạo từ catalogue</small></span><ArrowUpRight size={14} /></button><button onClick={() => onSaved('Đã chọn form gửi thông báo.')}><Bell size={17} /><span><strong>Gửi thông báo</strong><small>Chạm tới một nhóm học viên</small></span><ArrowUpRight size={14} /></button></div></div></div>
+  const config = actionCopy[type]
+  return <div className="modal-backdrop" onMouseDown={onClose}><form className="action-modal" onSubmit={save} onMouseDown={(event) => event.stopPropagation()}><div className="modal-heading"><div><p className="eyebrow">INTERACTIVE DEMO</p><h2>{config.title}</h2><p>{config.description}</p></div><button type="button" className="icon-button" onClick={onClose}><X size={18} /></button></div><div className="modal-fields">{config.fields.map((field, index) => <label key={field}>{field}<input required value={values[field] ?? ''} onChange={(event) => setValues({ ...values, [field]: event.target.value })} placeholder={index === 0 ? 'Nhập thông tin...' : 'Chọn hoặc nhập giá trị'} /></label>)}</div><div className="modal-actions"><button type="button" className="button button-ghost" onClick={onClose}>Hủy</button><button type="submit" className="button button-dark"><Check size={15} />{config.submit}</button></div></form></div>
+}
+
 function SectionHeading({ eyebrow, title, description, action, onAction }: { eyebrow: string; title: string; description?: string; action?: string; onAction?: () => void }) {
   return (
     <div className="section-heading">
@@ -282,10 +306,15 @@ export default function App() {
   const [roleOpen, setRoleOpen] = useState(false)
   const [toast, setToast] = useState('')
   const [search, setSearch] = useState('')
+  const [action, setAction] = useState<ActionType | null>(null)
 
   const allowedViews = roleAccess[role]
   const activeLabel = useMemo(() => navGroups.flatMap((group) => group.items).find((item) => item.id === view)?.label ?? 'Tổng quan', [view])
   const showToast = (message: string) => {
+    if (message.includes('Quick action')) { setAction('quick'); return }
+    const actionMatch: [string, ActionType][] = [['form tạo lead', 'lead'], ['flow mở lớp', 'class'], ['bảng điểm danh', 'attendance'], ['form tạo bài tập', 'assignment'], ['form ghi nhận', 'payment'], ['form thêm tài khoản', 'account']]
+    const matched = actionMatch.find(([needle]) => message.includes(needle))
+    if (matched) { setAction(matched[1]); return }
     setToast(message)
     window.setTimeout(() => setToast(''), 2800)
   }
@@ -330,6 +359,7 @@ export default function App() {
         <header className="topbar"><button className="mobile-menu icon-button" onClick={() => setMobileOpen(true)}><Menu size={20} /></button><div className="breadcrumb"><span>TMS Portal</span><b>/</b><strong>{activeLabel}</strong></div><div className="topbar-actions"><div className="global-search"><Search size={16} /><input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Tìm nhanh mọi thứ..." /><kbd>⌘ K</kbd></div><button className="notification-button" onClick={() => showToast('Bạn có 4 thông báo chưa đọc.')}><Bell size={19} /><i>4</i></button><div className="role-switcher"><button className="user-menu" onClick={() => setRoleOpen((open) => !open)}><span className="avatar avatar-mint">LT</span><span><strong>Linh Trần</strong><small>{roleLabels[role]}</small></span><ChevronDown size={15} /></button>{roleOpen && <div className="role-menu"><p>Góc nhìn demo</p>{(Object.keys(roleLabels) as Role[]).map((option) => <button className={option === role ? 'selected' : ''} key={option} onClick={() => changeRole(option)}><span className="role-menu-dot" />{option}{option === role && <Check size={14} />}</button>)}</div>}</div></div></header>
         <div className="main-content">{renderView()}</div>
       </main>
+      {action && <ActionModal type={action} onClose={() => setAction(null)} onSaved={(message) => { setAction(null); showToast(message) }} />}
       {toast && <div className="toast"><span><Check size={15} /></span>{toast}<button onClick={() => setToast('')}><X size={14} /></button></div>}
     </div>
   )
