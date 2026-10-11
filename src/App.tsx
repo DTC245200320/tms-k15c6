@@ -35,7 +35,7 @@ import {
 import './styles.css'
 
 type ViewKey = 'dashboard' | 'admissions' | 'programs' | 'schedule' | 'attendance' | 'assignments' | 'finance' | 'reports' | 'users'
-type Role = 'Quản lý đào tạo' | 'Tư vấn tuyển sinh' | 'Giảng viên' | 'Kế toán' | 'Quản trị hệ thống'
+type Role = 'Khách truy cập' | 'Học viên' | 'Trợ giảng' | 'Quản lý đào tạo' | 'Tư vấn tuyển sinh' | 'Giảng viên' | 'Kế toán' | 'Quản trị hệ thống'
 type StatusTone = 'mint' | 'yellow' | 'coral' | 'blue' | 'violet'
 
 type NavItem = { id: ViewKey; label: string; icon: LucideIcon; badge?: string; roles?: Role[] }
@@ -70,14 +70,20 @@ const navGroups: { title: string; items: NavItem[] }[] = [
 ]
 
 const roleAccess: Record<Role, ViewKey[]> = {
-  'Quản lý đào tạo': ['dashboard', 'admissions', 'programs', 'schedule', 'attendance', 'assignments', 'finance', 'reports'],
+  'Khách truy cập': [],
+  'Học viên': ['dashboard', 'programs', 'schedule', 'attendance', 'assignments', 'finance'],
+  'Trợ giảng': ['dashboard', 'programs', 'schedule', 'attendance', 'assignments'],
+  'Quản lý đào tạo': ['dashboard', 'admissions', 'programs', 'schedule', 'attendance', 'assignments', 'finance', 'reports', 'users'],
   'Tư vấn tuyển sinh': ['dashboard', 'admissions', 'programs', 'schedule', 'reports'],
   'Giảng viên': ['dashboard', 'programs', 'schedule', 'attendance', 'assignments', 'reports'],
   'Kế toán': ['dashboard', 'finance', 'reports'],
-  'Quản trị hệ thống': ['dashboard', 'users', 'reports'],
+  'Quản trị hệ thống': ['dashboard', 'admissions', 'programs', 'schedule', 'attendance', 'assignments', 'finance', 'reports', 'users'],
 }
 
 const roleLabels: Record<Role, string> = {
+  'Khách truy cập': 'Guest',
+  'Học viên': 'Student',
+  'Trợ giảng': 'Teaching Assistant',
   'Quản lý đào tạo': 'Training Manager',
   'Tư vấn tuyển sinh': 'Admissions',
   'Giảng viên': 'Instructor',
@@ -93,6 +99,8 @@ const demoAccounts: DemoAccount[] = [
   { email: 'admissions@tms.edu.vn', password: 'Admissions@123', name: 'Minh Phạm', role: 'Tư vấn tuyển sinh' },
   { email: 'instructor@tms.edu.vn', password: 'Instructor@123', name: 'Nguyễn Hoàng Long', role: 'Giảng viên' },
   { email: 'accounting@tms.edu.vn', password: 'Accounting@123', name: 'Thu Hà', role: 'Kế toán' },
+  { email: 'student@tms.edu.vn', password: 'Student@123', name: 'Nguyễn Minh Anh', role: 'Học viên' },
+  { email: 'ta@tms.edu.vn', password: 'TA@123456', name: 'Phạm Ngọc Hà', role: 'Trợ giảng' },
 ]
 
 const leads: Lead[] = [

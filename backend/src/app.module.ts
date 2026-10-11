@@ -1,5 +1,6 @@
 import { Controller, Get, Module } from '@nestjs/common'
 import { AUTH_ROUTES } from './auth/auth.contract'
+import { PilotController } from './api/pilot.controller'
 
 @Controller()
 class HealthController {
@@ -9,5 +10,5 @@ class HealthController {
   }
 }
 
-@Module({ controllers: [HealthController] })
+@Module({ controllers: [HealthController, PilotController] })
 export class AppModule {}

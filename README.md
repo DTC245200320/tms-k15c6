@@ -47,3 +47,9 @@ Mỗi branch trong `branches/FE` và `branches/BE` có thư mục source tương
 ## Interactive preview
 
 Dashboard hiện hỗ trợ điều hướng theo module, lọc pipeline, đổi góc nhìn RBAC, responsive menu, mở form thao tác nhanh và submit các form demo. Dữ liệu form đang lưu ở phiên client để review UX; khi story BE hoàn thành, thay `api.ts` bằng HTTP client tới endpoint NestJS và thêm persistence PostgreSQL.
+
+## Audit theo workbook
+
+- Báo cáo đối chiếu 75 story, 9 epic, 8 vai trò: [`docs/system-audit.md`](docs/system-audit.md).
+- Schema và seed domain: [`backend/src/database/schema.sql`](backend/src/database/schema.sql), [`backend/src/database/seed.sql`](backend/src/database/seed.sql).
+- Hệ thống hiện đã có foundation/pilot API; các module còn lại phải hoàn thiện theo thứ tự P0/P1 trong audit, không coi scaffold branch là tính năng đã hoàn thành.

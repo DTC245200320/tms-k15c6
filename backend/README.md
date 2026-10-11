@@ -30,3 +30,13 @@ src/
 ## Local run
 
 Copy `.env.example` to `.env`, run `docker compose up postgres backend frontend --build`, then open the frontend. Production reads `DATABASE_URL`, `JWT_ACCESS_SECRET`, `JWT_REFRESH_SECRET`, `FRONTEND_ORIGIN` and never ships these values to the browser.
+
+## Domain foundation từ Excel
+
+- `src/database/schema.sql`: schema PostgreSQL cho EP-01 đến EP-09.
+- `src/database/seed.sql`: dữ liệu pilot chương trình, lớp, phòng và lead.
+- `GET /api/v1/overview`: KPI dashboard và danh sách module.
+- `GET /api/v1/programs`, `GET /api/v1/leads`, `POST /api/v1/leads`, `GET /api/v1/classes`: API pilot cho vòng đời tuyển sinh/lớp.
+- `GET /api/v1/health/modules`: coverage contract của 9 epic, 75 story và 8 role.
+
+> Đây là foundation/pilot API. Trước production cần nối repository PostgreSQL, JWT guard, refresh rotation, queue email và object storage theo Definition of Done trong workbook.
