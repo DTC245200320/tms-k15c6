@@ -1,0 +1,13 @@
+{
+  "branch": "feature/S1-08-user-account-ui",
+  "team": "FE",
+  "storyId": "S1-08",
+  "baseBranch": "develop",
+  "scopeFiles": [
+    "frontend/src/features/S1-08-user-account-ui/feature.config.ts",
+    "frontend/src/features/S1-08-user-account-ui/api.ts",
+    "frontend/src/features/S1-08-user-account-ui/screen.tsx",
+    "branches/FE/S1-08-user-account-ui/README.md"
+  ],
+  "integration": "Open PR into develop; require at least one reviewer approval."
+}
