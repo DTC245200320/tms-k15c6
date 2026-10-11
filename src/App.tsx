@@ -324,7 +324,7 @@ function UsersView({ onToast }: { onToast: (text: string) => void }) {
 }
 
 export default function App() {
-  const [authenticated, setAuthenticated] = useState(() => window.sessionStorage.getItem('tms_session') === 'demo-access-token')
+  const [authenticated, setAuthenticated] = useState(() => window.location.pathname !== '/login' && window.sessionStorage.getItem('tms_session') === 'demo-access-token')
   const [view, setView] = useState<ViewKey>('dashboard')
   const [role, setRole] = useState<Role>(() => (window.sessionStorage.getItem('tms_role') as Role) || 'Quản lý đào tạo')
   const [mobileOpen, setMobileOpen] = useState(false)
