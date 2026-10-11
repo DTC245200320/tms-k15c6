@@ -1,0 +1,13 @@
+{
+  "branch": "feature/S2-04-be-program-catalog",
+  "team": "BE",
+  "storyId": "S2-04",
+  "baseBranch": "develop",
+  "scopeFiles": [
+    "backend/src/modules/S2-04-be-program-catalog/module.ts",
+    "backend/src/modules/S2-04-be-program-catalog/controller.ts",
+    "backend/src/modules/S2-04-be-program-catalog/service.ts",
+    "branches/BE/S2-04-be-program-catalog/README.md"
+  ],
+  "integration": "Open PR into develop; require at least one reviewer approval."
+}
