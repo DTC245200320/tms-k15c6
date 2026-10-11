@@ -1,0 +1,13 @@
+{
+  "branch": "feature/S2-01-fe-bulk-import-users",
+  "team": "FE",
+  "storyId": "S2-01",
+  "baseBranch": "develop",
+  "scopeFiles": [
+    "frontend/src/features/S2-01-fe-bulk-import-users/feature.config.ts",
+    "frontend/src/features/S2-01-fe-bulk-import-users/api.ts",
+    "frontend/src/features/S2-01-fe-bulk-import-users/screen.tsx",
+    "branches/FE/S2-01-fe-bulk-import-users/README.md"
+  ],
+  "integration": "Open PR into develop; require at least one reviewer approval."
+}
