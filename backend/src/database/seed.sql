@@ -1,46 +1,49 @@
--- Demo seed for the Excel pilot flow. Replace password hashes before production.
-INSERT INTO roles (code, name, description) VALUES
-('GUEST','Khách truy cập','Gửi yêu cầu tư vấn công khai'),
-('STUDENT','Học viên','Xem lịch, bài tập, điểm và học phí của mình'),
-('INSTRUCTOR','Giảng viên','Điểm danh, giao bài, chấm điểm lớp phụ trách'),
-('TA','Trợ giảng','Hỗ trợ điểm danh/chấm bài trong phạm vi được ủy quyền'),
-('TRAINING_MANAGER','Quản lý đào tạo','Vận hành chương trình, lớp, lịch và chất lượng'),
-('ADMISSIONS','Tư vấn tuyển sinh','Quản lý lead và chuyển đổi nhập học'),
-('ACCOUNTANT','Kế toán','Quản lý biểu phí, thu tiền và công nợ'),
-('ADMIN','Quản trị hệ thống','Quản trị tài khoản, quyền và nhật ký')
-ON CONFLICT (code) DO NOTHING;
 
-INSERT INTO permissions(code, description) VALUES
-('users:read','Xem tài khoản'),('users:write','Quản trị tài khoản'),('programs:read','Xem chương trình'),('programs:write','Quản trị chương trình'),('leads:read','Xem lead'),('leads:write','Quản trị lead'),('attendance:read','Xem điểm danh'),('attendance:write','Ghi điểm danh'),('assignments:read','Xem bài tập'),('assignments:write','Quản trị bài tập'),('grading:read','Xem điểm'),('grading:write','Chấm điểm'),('finance:read','Xem học phí'),('finance:write','Ghi nhận thanh toán'),('reports:read','Xem báo cáo'),('audit:read','Xem nhật ký')
-ON CONFLICT (code) DO NOTHING;
+-- Bootstrap production users. Override passwords and remove these rows after first deployment.
+INSERT INTO users(email,password_hash,full_name,status)
+VALUES
+('admin@tms.edu.vn','$argon2id$v=19$m=65536,t=3,p=4$gIb7L+z2455mWoBSuRzN0Q$ST5zFDvRecEkGEt88ZdIUUpR3vwZwayBzfpmAKf64VM','Admin TMS','ACTIVE'),
+('student@tms.edu.vn','$argon2id$v=19$m=65536,t=3,p=4$gIb7L+z2455mWoBSuRzN0Q$ST5zFDvRecEkGEt88ZdIUUpR3vwZwayBzfpmAKf64VM','Nguyễn Minh Anh','ACTIVE'),
+('instructor@tms.edu.vn','$argon2id$v=19$m=65536,t=3,p=4$gIb7L+z2455mWoBSuRzN0Q$ST5zFDvRecEkGEt88ZdIUUpR3vwZwayBzfpmAKf64VM','Nguyễn Hoàng Long','ACTIVE')
+ON CONFLICT (email) DO NOTHING;
+INSERT INTO user_roles(user_id,role_code)
+SELECT u.id, 'ADMIN' FROM users u WHERE u.email='admin@tms.edu.vn'
+ON CONFLICT DO NOTHING;
+INSERT INTO user_roles(user_id,role_code)
+SELECT u.id, 'STUDENT' FROM users u WHERE u.email='student@tms.edu.vn'
+ON CONFLICT DO NOTHING;
+INSERT INTO user_roles(user_id,role_code)
+SELECT u.id, 'INSTRUCTOR' FROM users u WHERE u.email='instructor@tms.edu.vn'
+ON CONFLICT DO NOTHING;
 
-INSERT INTO programs(code,name,description,duration_sessions,standard_fee) VALUES
-('FS-K15','Full-stack Web Developer','Lộ trình React, NestJS, PostgreSQL và triển khai sản phẩm',60,18500000),
-('DA-K02','Data Analyst Foundation','SQL, phân tích dữ liệu và trực quan hóa',36,16000000),
-('UX-K08','UI/UX Product Design','Nghiên cứu người dùng và thiết kế sản phẩm',32,14500000)
-ON CONFLICT (code) DO NOTHING;
-
-INSERT INTO courses(code,name,sessions_count,weight,learning_outcomes) VALUES
-('WEB-FE','Frontend Engineering','24',40,'Xây dựng giao diện React có cấu trúc'),
-('WEB-BE','Backend Engineering','24',40,'Thiết kế API NestJS và dữ liệu PostgreSQL'),
-('WEB-CAP','Capstone Project','12',20,'Hoàn thiện và demo sản phẩm')
-ON CONFLICT (code) DO NOTHING;
-
-INSERT INTO rooms(code,name,capacity,meeting_url) VALUES
-('LAB-03','Lab 03',28,NULL),('ROOM-204','Phòng 204',24,NULL),('ONLINE-01','Online Zoom',100,'https://zoom.example.com/tms-demo')
-ON CONFLICT (code) DO NOTHING;
-
-INSERT INTO leads(full_name,phone,email,source,interested_program_id,status)
-SELECT 'Nguyễn Minh Anh','0901000001','minhanh@example.com','Facebook',id,'NEW' FROM programs WHERE code='FS-K15'
-AND NOT EXISTS (SELECT 1 FROM leads WHERE phone='0901000001');
-INSERT INTO leads(full_name,phone,email,source,interested_program_id,status)
-SELECT 'Trần Gia Huy','0901000002','giahuy@example.com','Landing page',id,'CONSULTING' FROM programs WHERE code='DA-K02'
-AND NOT EXISTS (SELECT 1 FROM leads WHERE phone='0901000002');
-
-INSERT INTO classes(code,program_id,expected_start_date,max_students,delivery_mode,status)
-SELECT 'FS-K15C6',id,'2026-10-19',28,'HYBRID','RUNNING' FROM programs WHERE code='FS-K15'
-AND NOT EXISTS (SELECT 1 FROM classes WHERE code='FS-K15C6');
-
-INSERT INTO fee_catalog(program_id,effective_from,amount)
-SELECT id,'2026-01-01',standard_fee FROM programs
-ON CONFLICT (program_id,effective_from) DO NOTHING;
+INSERT INTO class_courses(class_id,course_id,sort_order,instructor_id)
+SELECT cl.id, co.id, 1, u.id FROM classes cl, courses co, users u
+WHERE cl.code='FS-K15C6' AND co.code='WEB-FE' AND u.email='instructor@tms.edu.vn'
+ON CONFLICT (class_id,course_id) DO NOTHING;
+INSERT INTO class_courses(class_id,course_id,sort_order,instructor_id)
+SELECT cl.id, co.id, 2, u.id FROM classes cl, courses co, users u
+WHERE cl.code='FS-K15C6' AND co.code='WEB-BE' AND u.email='instructor@tms.edu.vn'
+ON CONFLICT (class_id,course_id) DO NOTHING;
+INSERT INTO students(user_id,student_code,entry_level)
+SELECT u.id,'HV-24031','Foundation' FROM users u WHERE u.email='student@tms.edu.vn'
+ON CONFLICT (student_code) DO NOTHING;
+INSERT INTO enrollments(class_id,student_id)
+SELECT cl.id, st.id FROM classes cl, students st WHERE cl.code='FS-K15C6' AND st.student_code='HV-24031'
+ON CONFLICT (class_id,student_id) DO NOTHING;
+INSERT INTO class_sessions(class_id,class_course_id,starts_at,ends_at,room_id,instructor_id,status)
+SELECT cl.id, cc.id, '2026-10-11 08:30:00+07','2026-10-11 11:30:00+07',r.id,u.id,'SCHEDULED'
+FROM classes cl JOIN class_courses cc ON cc.class_id=cl.id JOIN courses co ON co.id=cc.course_id JOIN rooms r ON r.code='LAB-03' JOIN users u ON u.email='instructor@tms.edu.vn'
+WHERE cl.code='FS-K15C6' AND co.code='WEB-FE'
+AND NOT EXISTS (SELECT 1 FROM class_sessions s WHERE s.class_id=cl.id AND s.starts_at='2026-10-11 08:30:00+07');
+INSERT INTO attendance_records(session_id,student_id,status)
+SELECT cs.id, st.id, 'PRESENT' FROM class_sessions cs, students st WHERE st.student_code='HV-24031'
+ON CONFLICT (session_id,student_id) DO NOTHING;
+INSERT INTO assignments(class_course_id,title,description,due_at,max_score,status,created_by)
+SELECT cc.id,'Build a Kanban Board','Xây dựng board React có drag and drop','2026-10-12 17:00:00+07',100,'PUBLISHED',u.id
+FROM class_courses cc JOIN classes cl ON cl.id=cc.class_id JOIN courses co ON co.id=cc.course_id JOIN users u ON u.email='instructor@tms.edu.vn'
+WHERE cl.code='FS-K15C6' AND co.code='WEB-FE'
+AND NOT EXISTS (SELECT 1 FROM assignments a WHERE a.title='Build a Kanban Board');
+INSERT INTO notifications(user_id,type,title,body,target_path)
+SELECT id,'SESSION_REMINDER','Buổi học ngày mai bắt đầu lúc 08:30','Lớp FS-K15C6 học tại Lab 03.','/attendance'
+FROM users WHERE email='student@tms.edu.vn'
+AND NOT EXISTS (SELECT 1 FROM notifications n WHERE n.title='Buổi học ngày mai bắt đầu lúc 08:30');

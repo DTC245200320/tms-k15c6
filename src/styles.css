@@ -218,3 +218,20 @@ kbd { padding: 3px 5px; color: #9ea5b4; border: 1px solid #e2e3e9; border-radius
 .login-expired { display: flex; align-items: center; gap: 6px; margin: 0 0 15px; padding: 9px 10px; border: 1px solid #f0d99a; border-radius: 6px; color: #8a6b24; background: #fff8df; font-size: 9px; }
 .role-menu-logout { display: block !important; margin-top: 7px; padding: 9px 8px !important; color: #b85f57 !important; border-top: 1px solid var(--line) !important; border-radius: 0 !important; font-weight: 700; }
 .role-menu-logout:hover { background: var(--coral-pale) !important; }
+.drawer-backdrop { position: fixed; inset: 0; z-index: 80; display: flex; justify-content: flex-end; background: rgba(16, 26, 61, .28); backdrop-filter: blur(3px); }
+.record-drawer { width: min(460px, 100%); min-height: 100%; padding: 28px; overflow-y: auto; color: var(--ink); background: #fff; box-shadow: -18px 0 45px rgba(16,26,61,.16); animation: drawer-in .22s ease-out; }
+@keyframes drawer-in { from { transform: translateX(100%); } to { transform: translateX(0); } }
+.drawer-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 18px; padding-bottom: 22px; border-bottom: 1px solid var(--line); }
+.drawer-header h2 { max-width: 330px; margin: 0 0 10px; font: 800 24px/1.15 'Manrope', sans-serif; letter-spacing: -.04em; }
+.drawer-header p:not(.eyebrow) { margin: 0; color: #8a93a7; font-size: 11px; line-height: 1.55; }
+.drawer-status { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 18px 0; border-bottom: 1px solid var(--line); }
+.drawer-status small { color: #98a0b2; font-size: 10px; text-align: right; }
+.drawer-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; margin: 24px 0; overflow: hidden; border: 1px solid var(--line); border-radius: 12px; background: var(--line); }
+.drawer-fields div { display: grid; gap: 7px; min-height: 82px; padding: 15px; background: #fff; }
+.drawer-fields span { color: #98a0b2; font-size: 10px; }
+.drawer-fields strong { color: var(--ink); font-size: 12px; }
+.drawer-note { margin: 22px 0; padding: 18px; border: 1px solid #e3e0ff; border-radius: 13px; background: #f7f5ff; }
+.drawer-note strong { display: block; margin-bottom: 7px; font-size: 13px; }
+.drawer-note p:last-child { margin: 0; color: #858da2; font-size: 11px; line-height: 1.5; }
+.drawer-actions { display: flex; justify-content: flex-end; gap: 9px; margin-top: 28px; }
+@media (max-width: 520px) { .record-drawer { padding: 22px 18px; } .drawer-fields { grid-template-columns: 1fr; } }

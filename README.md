@@ -53,3 +53,18 @@ Dashboard hiện hỗ trợ điều hướng theo module, lọc pipeline, đổi
 - Báo cáo đối chiếu 75 story, 9 epic, 8 vai trò: [`docs/system-audit.md`](docs/system-audit.md).
 - Schema và seed domain: [`backend/src/database/schema.sql`](backend/src/database/schema.sql), [`backend/src/database/seed.sql`](backend/src/database/seed.sql).
 - Hệ thống hiện đã có foundation/pilot API; các module còn lại phải hoàn thiện theo thứ tự P0/P1 trong audit, không coi scaffold branch là tính năng đã hoàn thành.
+
+## Production deployment
+
+Đây là cấu hình deploy thật, không chỉ mock UI:
+
+```bash
+export JWT_ACCESS_SECRET="$(openssl rand -hex 32)"
+export JWT_REFRESH_SECRET="$(openssl rand -hex 32)"
+export VITE_API_URL=http://localhost:3000
+docker compose up --build
+```
+
+Frontend chạy trên `:8080`, backend NestJS trên `:3000`, PostgreSQL trên `:5432`. Backend tự migrate schema/seed khi `AUTO_MIGRATE=true`; refresh session và business records được lưu PostgreSQL. Vite bundle production dùng `VITE_API_URL` lúc build và Nginx đã bật SPA fallback cho `/login` và các route nội bộ.
+
+Preview Sandbox không thay thế deploy production. Docker CLI không có trong môi trường kiểm tra hiện tại, vì vậy cần chạy lệnh compose trên máy/CI có Docker trước khi public Internet.

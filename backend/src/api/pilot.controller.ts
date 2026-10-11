@@ -1,137 +1,94 @@
 import { Body, Controller, Get, Param, Patch, Post } from '@nestjs/common'
-
-type Lead = { id: string; name: string; phone: string; email?: string; program: string; status: string; owner: string }
-type ClassRow = { code: string; program: string; status: string; students: number; capacity: number; progress: number; attendanceRate: number }
-
-const programs = [
-  { code: 'FS-K15', name: 'Full-stack Web Developer', status: 'Đang áp dụng', courses: 3, fee: 18500000 },
-  { code: 'DA-K02', name: 'Data Analyst Foundation', status: 'Đang áp dụng', courses: 4, fee: 16000000 },
-  { code: 'UX-K08', name: 'UI/UX Product Design', status: 'Đang áp dụng', courses: 4, fee: 14500000 },
-]
-const leads: Lead[] = [
-  { id: 'L-001', name: 'Nguyễn Minh Anh', phone: '0901000001', email: 'minhanh@example.com', program: 'FS-K15', status: 'Mới', owner: 'Minh Phạm' },
-  { id: 'L-002', name: 'Trần Gia Huy', phone: '0901000002', email: 'giahuy@example.com', program: 'DA-K02', status: 'Đang tư vấn', owner: 'Minh Phạm' },
-]
-const classes: ClassRow[] = [{ code: 'FS-K15C6', program: 'FS-K15', status: 'Đang học', students: 24, capacity: 28, progress: 68, attendanceRate: 91.4 }]
-const attendance = [
-  { studentCode: 'HV-24031', student: 'Nguyễn Minh Anh', session: 'FS-K15C6-15', status: 'PRESENT' },
-  { studentCode: 'HV-24042', student: 'Trần Gia Huy', session: 'FS-K15C6-15', status: 'LATE' },
-  { studentCode: 'HV-24018', student: 'Phạm Quốc Bảo', session: 'FS-K15C6-15', status: 'ABSENT' },
-]
-const assignments = [
-  { id: 'A-001', title: 'Build a Kanban Board', classCode: 'FS-K15C6', dueAt: '2026-10-12T17:00:00+07:00', status: 'PUBLISHED', submitted: 21, graded: 14 },
-  { id: 'A-002', title: 'Phân tích dữ liệu bán hàng', classCode: 'DA-K02', dueAt: '2026-10-14T17:00:00+07:00', status: 'PUBLISHED', submitted: 18, graded: 18 },
-]
-const payments = [{ receiptNo: 'RC-2026-001', student: 'Nguyễn Minh Anh', classCode: 'FS-K15C6', amount: 3500000, method: 'BANK_TRANSFER', paidAt: '2026-10-10T09:30:00+07:00' }]
-const notifications = [{ id: 'N-001', title: 'Buổi học ngày mai bắt đầu lúc 08:30', type: 'SESSION_REMINDER', unread: true }]
+import { DatabaseService } from '../database/database.service'
 
 @Controller('/api/v1')
 export class PilotController {
+  constructor(private readonly db: DatabaseService) {}
+
   @Get('/overview')
-  overview() {
-    return { generatedAt: new Date().toISOString(), timezone: 'Asia/Ho_Chi_Minh', currency: 'VND', kpis: { runningClasses: 12, activeStudents: 286, attendanceRate: 91.4, overdueReceivables: 42800000, openLeads: leads.length }, risks: [{ student: 'Lê Hoàng Yến', classCode: 'FS-K15C6', reason: 'Vắng 22% · còn 1 bài chưa nộp' }], modules: ['admissions', 'programs', 'classes', 'timetable', 'attendance', 'assignments', 'grading', 'finance', 'surveys', 'reports'] }
+  async overview() {
+    const [classes, students, attendance, receivables, leads] = await Promise.all([
+      this.db.query<{ count: string }>(`SELECT count(*)::text AS count FROM classes WHERE status IN ('RUNNING','ACTIVE')`),
+      this.db.query<{ count: string }>(`SELECT count(*)::text AS count FROM students WHERE status='ACTIVE'`),
+      this.db.query<{ rate: string | null }>(`SELECT round(avg(CASE WHEN status IN ('PRESENT','LATE') THEN 100 ELSE 0 END), 1)::text AS rate FROM attendance_records`),
+      this.db.query<{ amount: string | null }>(`SELECT coalesce(sum(pi.amount - pi.paid_amount), 0)::text AS amount FROM payment_installments pi WHERE pi.status <> 'PAID'`),
+      this.db.query<{ count: string }>(`SELECT count(*)::text AS count FROM leads WHERE status NOT IN ('ENROLLED','REJECTED')`),
+    ])
+    return { generatedAt: new Date().toISOString(), timezone: 'Asia/Ho_Chi_Minh', currency: 'VND', kpis: { runningClasses: Number(classes.rows[0]?.count ?? 0), activeStudents: Number(students.rows[0]?.count ?? 0), attendanceRate: Number(attendance.rows[0]?.rate ?? 0), overdueReceivables: Number(receivables.rows[0]?.amount ?? 0), openLeads: Number(leads.rows[0]?.count ?? 0) }, modules: ['admissions', 'programs', 'classes', 'timetable', 'attendance', 'assignments', 'grading', 'finance', 'surveys', 'reports'] }
   }
 
   @Get('/programs')
-  listPrograms() { return { data: programs, total: programs.length } }
+  async listPrograms() { const result = await this.db.query(`SELECT id, code, name, status, duration_sessions AS "durationSessions", standard_fee AS fee FROM programs ORDER BY created_at DESC`); return { data: result.rows, total: result.rowCount } }
 
   @Post('/programs')
-  createProgram(@Body() body: { code: string; name: string; fee?: number }) {
-    if (programs.some((item) => item.code === body.code)) return { error: 'PROGRAM_CODE_EXISTS', message: 'Mã chương trình đã tồn tại' }
-    const program = { code: body.code, name: body.name, status: 'Đang áp dụng', courses: 0, fee: body.fee ?? 0 }
-    programs.push(program)
-    return { data: program }
+  async createProgram(@Body() body: { code: string; name: string; durationSessions: number; fee?: number; description?: string }) {
+    const result = await this.db.query(`INSERT INTO programs(code,name,description,duration_sessions,standard_fee) VALUES($1,$2,$3,$4,$5) RETURNING *`, [body.code, body.name, body.description ?? null, body.durationSessions, body.fee ?? 0])
+    return { data: result.rows[0] }
+  }
+
+  @Get('/courses')
+  async listCourses() { const result = await this.db.query(`SELECT id, code, name, sessions_count AS "sessionsCount", weight, learning_outcomes AS "learningOutcomes", status FROM courses ORDER BY code`); return { data: result.rows, total: result.rowCount } }
+
+  @Post('/courses')
+  async createCourse(@Body() body: { code: string; name: string; sessionsCount: number; weight?: number; learningOutcomes?: string }) {
+    const result = await this.db.query(`INSERT INTO courses(code,name,sessions_count,weight,learning_outcomes) VALUES($1,$2,$3,$4,$5) RETURNING *`, [body.code, body.name, body.sessionsCount, body.weight ?? 100, body.learningOutcomes ?? null])
+    return { data: result.rows[0] }
   }
 
   @Get('/leads')
-  listLeads() { return { data: leads, total: leads.length } }
+  async listLeads() { const result = await this.db.query(`SELECT l.id, l.full_name AS name, l.phone, l.email, l.source, l.status, p.code AS program, l.created_at AS "createdAt" FROM leads l LEFT JOIN programs p ON p.id=l.interested_program_id ORDER BY l.created_at DESC`); return { data: result.rows, total: result.rowCount } }
 
   @Post('/leads')
-  createLead(@Body() body: { name: string; phone: string; email?: string; program?: string }) {
-    if (leads.some((item) => item.phone === body.phone)) return { error: 'DUPLICATE_PHONE', message: 'Số điện thoại đã tồn tại trong danh sách lead' }
-    const lead: Lead = { id: `L-${String(leads.length + 1).padStart(3, '0')}`, name: body.name, phone: body.phone, email: body.email, program: body.program ?? 'Chưa chọn', status: 'Mới', owner: 'Chưa phân công' }
-    leads.push(lead)
-    return { data: lead, message: 'Đã tạo lead ở trạng thái Mới' }
+  async createLead(@Body() body: { name: string; phone: string; email?: string; programCode?: string; source?: string }) {
+    const result = await this.db.query(`INSERT INTO leads(full_name,phone,email,source,interested_program_id) VALUES($1,$2,$3,$4,(SELECT id FROM programs WHERE code=$5)) RETURNING id, full_name AS name, phone, email, source, status, created_at AS "createdAt"`, [body.name, body.phone, body.email ?? null, body.source ?? 'Website', body.programCode ?? null])
+    return { data: result.rows[0], message: 'Đã tạo lead ở trạng thái NEW' }
   }
 
   @Patch('/leads/:id/status')
-  updateLeadStatus(@Param('id') id: string, @Body() body: { status: string; reason?: string }) {
-    const lead = leads.find((item) => item.id === id)
-    if (!lead) return { error: 'LEAD_NOT_FOUND', message: 'Không tìm thấy lead' }
-    lead.status = body.status
-    return { data: lead, history: { leadId: id, status: body.status, reason: body.reason ?? null, changedAt: new Date().toISOString() } }
+  async updateLeadStatus(@Param('id') id: string, @Body() body: { status: string; reason?: string }) {
+    const result = await this.db.query(`UPDATE leads SET status=$2, rejection_reason=$3, updated_at=now() WHERE id=$1 RETURNING *`, [id, body.status, body.reason ?? null])
+    return result.rowCount ? { data: result.rows[0] } : { error: 'LEAD_NOT_FOUND', message: 'Không tìm thấy lead' }
   }
 
   @Get('/classes')
-  listClasses() { return { data: classes, total: classes.length } }
+  async listClasses() { const result = await this.db.query(`SELECT c.id, c.code, p.code AS program, p.name AS "programName", c.status, c.max_students AS capacity, count(e.id)::int AS students, c.expected_start_date AS "startDate" FROM classes c JOIN programs p ON p.id=c.program_id LEFT JOIN enrollments e ON e.class_id=c.id AND e.lifecycle_status='ACTIVE' GROUP BY c.id,p.code,p.name ORDER BY c.created_at DESC`); return { data: result.rows, total: result.rowCount } }
 
   @Post('/classes')
-  createClass(@Body() body: { code: string; program: string; capacity?: number }) {
-    if (classes.some((item) => item.code === body.code)) return { error: 'CLASS_CODE_EXISTS', message: 'Mã lớp đã tồn tại' }
-    const item: ClassRow = { code: body.code, program: body.program, status: 'Chuẩn bị', students: 0, capacity: body.capacity ?? 25, progress: 0, attendanceRate: 0 }
-    classes.push(item)
-    return { data: item }
+  async createClass(@Body() body: { code: string; programCode: string; startDate?: string; capacity?: number; deliveryMode?: string }) {
+    const result = await this.db.query(`INSERT INTO classes(code,program_id,expected_start_date,max_students,delivery_mode) VALUES($1,(SELECT id FROM programs WHERE code=$2),$3,$4,$5) RETURNING *`, [body.code, body.programCode, body.startDate ?? null, body.capacity ?? 25, body.deliveryMode ?? 'ONSITE'])
+    return { data: result.rows[0] }
   }
 
   @Get('/schedule')
-  listSchedule() { return { data: [{ id: 'S-001', classCode: 'FS-K15C6', title: 'React State & Data Flow', startsAt: '2026-10-11T08:30:00+07:00', endsAt: '2026-10-11T11:30:00+07:00', room: 'Lab 03', instructor: 'Nguyễn Hoàng Long', status: 'SCHEDULED' }] } }
-
-  @Post('/attendance/bulk-present')
-  markAllPresent(@Body() body: { sessionId: string }) {
-    attendance.forEach((record) => { if (record.session === body.sessionId) record.status = 'PRESENT' })
-    return { message: 'Đã đánh dấu tất cả học viên có mặt', sessionId: body.sessionId, updated: attendance.length }
-  }
+  async listSchedule() { const result = await this.db.query(`SELECT s.id, c.code AS "classCode", co.name AS course, s.starts_at AS "startsAt", s.ends_at AS "endsAt", r.name AS room, s.status FROM class_sessions s JOIN classes c ON c.id=s.class_id LEFT JOIN class_courses cc ON cc.id=s.class_course_id LEFT JOIN courses co ON co.id=cc.course_id LEFT JOIN rooms r ON r.id=s.room_id ORDER BY s.starts_at`); return { data: result.rows } }
 
   @Get('/attendance')
-  listAttendance() { return { data: attendance } }
+  async listAttendance() { const result = await this.db.query(`SELECT ar.id, ar.status, ar.note, st.student_code AS "studentCode", u.full_name AS student, cs.starts_at AS "startsAt", c.code AS "classCode" FROM attendance_records ar JOIN students st ON st.id=ar.student_id LEFT JOIN users u ON u.id=st.user_id JOIN class_sessions cs ON cs.id=ar.session_id JOIN classes c ON c.id=cs.class_id ORDER BY cs.starts_at DESC`); return { data: result.rows } }
 
-  @Patch('/attendance/:studentCode')
-  updateAttendance(@Param('studentCode') studentCode: string, @Body() body: { status: string }) {
-    const record = attendance.find((item) => item.studentCode === studentCode)
-    if (!record) return { error: 'ATTENDANCE_NOT_FOUND', message: 'Không tìm thấy bản ghi điểm danh' }
-    record.status = body.status
-    return { data: record, audited: true }
-  }
+  @Post('/attendance/bulk-present')
+  async markAllPresent(@Body() body: { sessionId: string; markedBy?: string }) { const result = await this.db.query(`UPDATE attendance_records SET status='PRESENT', marked_at=now() WHERE session_id=$1 RETURNING id`, [body.sessionId]); return { message: 'Đã đánh dấu tất cả học viên có mặt', updated: result.rowCount } }
+
+  @Patch('/attendance/:id')
+  async updateAttendance(@Param('id') id: string, @Body() body: { status: string; note?: string }) { const result = await this.db.query(`UPDATE attendance_records SET status=$2,note=$3,marked_at=now() WHERE id=$1 RETURNING *`, [id, body.status, body.note ?? null]); return result.rowCount ? { data: result.rows[0] } : { error: 'ATTENDANCE_NOT_FOUND' } }
 
   @Get('/assignments')
-  listAssignments() { return { data: assignments, total: assignments.length } }
+  async listAssignments() { const result = await this.db.query(`SELECT a.id, a.title, a.description, a.due_at AS "dueAt", a.max_score AS "maxScore", a.status, c.code AS "classCode", count(s.id)::int AS submissions FROM assignments a LEFT JOIN class_courses cc ON cc.id=a.class_course_id LEFT JOIN classes c ON c.id=cc.class_id LEFT JOIN submissions s ON s.assignment_id=a.id GROUP BY a.id,c.code ORDER BY a.due_at`); return { data: result.rows, total: result.rowCount } }
 
   @Post('/assignments')
-  createAssignment(@Body() body: { title: string; classCode: string; dueAt: string }) {
-    const assignment = { id: `A-${String(assignments.length + 1).padStart(3, '0')}`, ...body, status: 'DRAFT', submitted: 0, graded: 0 }
-    assignments.push(assignment)
-    return { data: assignment }
-  }
+  async createAssignment(@Body() body: { title: string; description?: string; dueAt: string; maxScore?: number; classCourseId?: string }) { const result = await this.db.query(`INSERT INTO assignments(title,description,due_at,max_score,class_course_id,status) VALUES($1,$2,$3,$4,$5,'PUBLISHED') RETURNING *`, [body.title, body.description ?? null, body.dueAt, body.maxScore ?? 100, body.classCourseId ?? null]); return { data: result.rows[0] } }
 
   @Post('/assignments/:id/submit')
-  submitAssignment(@Param('id') id: string, @Body() body: { studentCode: string; repoUrl?: string }) {
-    const assignment = assignments.find((item) => item.id === id)
-    if (!assignment) return { error: 'ASSIGNMENT_NOT_FOUND', message: 'Không tìm thấy bài tập' }
-    assignment.submitted += 1
-    return { data: { assignmentId: id, studentCode: body.studentCode, repoUrl: body.repoUrl ?? null, version: 1, status: 'SUBMITTED', submittedAt: new Date().toISOString() } }
-  }
+  async submitAssignment(@Param('id') id: string, @Body() body: { studentId: string; repoUrl?: string }) { const submission = await this.db.query(`INSERT INTO submissions(assignment_id,student_id,status) VALUES($1,$2,'SUBMITTED') ON CONFLICT(assignment_id,student_id) DO UPDATE SET status='SUBMITTED' RETURNING id`, [id, body.studentId]); const version = await this.db.query(`INSERT INTO submission_versions(submission_id,version_no,repo_url) VALUES($1,1,$2) RETURNING *`, [submission.rows[0].id, body.repoUrl ?? null]); return { data: version.rows[0] } }
 
   @Get('/finance/payments')
-  listPayments() { return { data: payments, total: payments.length } }
-
-  @Post('/finance/payments')
-  recordPayment(@Body() body: { student: string; classCode: string; amount: number; method: string }) {
-    const payment = { receiptNo: `RC-2026-${String(payments.length + 1).padStart(3, '0')}`, ...body, paidAt: new Date().toISOString() }
-    payments.push(payment)
-    return { data: payment, audited: true, message: 'Đã ghi nhận khoản thu và tạo biên lai' }
-  }
+  async listPayments() { const result = await this.db.query(`SELECT p.id, p.receipt_no AS "receiptNo", p.amount, p.method, p.paid_at AS "paidAt", pi.due_date AS "dueDate", st.student_code AS "studentCode" FROM payments p JOIN payment_installments pi ON pi.id=p.installment_id JOIN payment_plans pp ON pp.id=pi.plan_id JOIN students st ON st.id=pp.student_id ORDER BY p.paid_at DESC`); return { data: result.rows, total: result.rowCount } }
 
   @Get('/notifications')
-  listNotifications() { return { data: notifications, unread: notifications.filter((item) => item.unread).length } }
+  async listNotifications() { const result = await this.db.query<{ readAt: string | null }>(`SELECT id,type,title,body,target_path AS "targetPath",read_at AS "readAt",created_at AS "createdAt" FROM notifications ORDER BY created_at DESC`); return { data: result.rows, unread: result.rows.filter((item) => !item.readAt).length } }
 
   @Patch('/notifications/:id/read')
-  markNotificationRead(@Param('id') id: string) {
-    const notification = notifications.find((item) => item.id === id)
-    if (!notification) return { error: 'NOTIFICATION_NOT_FOUND', message: 'Không tìm thấy thông báo' }
-    notification.unread = false
-    return { data: notification }
-  }
+  async markNotificationRead(@Param('id') id: string) { const result = await this.db.query(`UPDATE notifications SET read_at=now() WHERE id=$1 RETURNING *`, [id]); return result.rowCount ? { data: result.rows[0] } : { error: 'NOTIFICATION_NOT_FOUND' } }
 
   @Get('/health/modules')
-  moduleCoverage() { return { status: 'pilot-ready', persistence: 'PostgreSQL schema + seed prepared', authentication: 'JWT contract + frontend session demo', coverage: { epics: 9, stories: 75, roles: 8 } } }
+  moduleCoverage() { return { status: 'production-foundation', persistence: 'PostgreSQL migrations + seed', authentication: 'JWT contract', coverage: { epics: 9, stories: 75, roles: 8 } } }
 }
