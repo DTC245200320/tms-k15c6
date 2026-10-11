@@ -1,0 +1,13 @@
+{
+  "branch": "feature/S3-05-fe-class-opening",
+  "team": "FE",
+  "storyId": "S3-05",
+  "baseBranch": "develop",
+  "scopeFiles": [
+    "frontend/src/features/S3-05-fe-class-opening/feature.config.ts",
+    "frontend/src/features/S3-05-fe-class-opening/api.ts",
+    "frontend/src/features/S3-05-fe-class-opening/screen.tsx",
+    "branches/FE/S3-05-fe-class-opening/README.md"
+  ],
+  "integration": "Open PR into develop; require at least one reviewer approval."
+}
