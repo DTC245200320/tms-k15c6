@@ -1,0 +1,13 @@
+{
+  "branch": "feature/S2-11-fe-lead-search-filter",
+  "team": "FE",
+  "storyId": "S2-11",
+  "baseBranch": "develop",
+  "scopeFiles": [
+    "frontend/src/features/S2-11-fe-lead-search-filter/feature.config.ts",
+    "frontend/src/features/S2-11-fe-lead-search-filter/api.ts",
+    "frontend/src/features/S2-11-fe-lead-search-filter/screen.tsx",
+    "branches/FE/S2-11-fe-lead-search-filter/README.md"
+  ],
+  "integration": "Open PR into develop; require at least one reviewer approval."
+}
