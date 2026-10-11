@@ -13,3 +13,7 @@
 ## Preview
 
 Mở `/login`, chọn tài khoản ở danh sách **TÀI KHOẢN DEMO THEO QUYỀN**, nhập mật khẩu tương ứng rồi đăng nhập. Role được lưu trong `sessionStorage` cho phiên demo và sẽ được thay bằng JWT access/refresh token khi nối API NestJS.
+
+## Session timeout
+
+Preview tạo session demo có thời hạn **30 phút**. Khi hết hạn, `tms_session`, `tms_role` và `tms_expires_at` bị xóa khỏi `sessionStorage`, người dùng được đưa về `/login` và nhìn thấy thông báo phiên đã hết hạn. Khi nối backend thật, dùng access token ngắn hạn và refresh token theo contract NestJS.

@@ -1,4 +1,4 @@
-import { useMemo, useState, type FormEvent, type ReactNode } from 'react'
+import { useEffect, useMemo, useState, type FormEvent, type ReactNode } from 'react'
 import {
   ArrowDownRight,
   ArrowUpRight,
@@ -86,6 +86,7 @@ const roleLabels: Record<Role, string> = {
 }
 
 type DemoAccount = { email: string; password: string; name: string; role: Role }
+const SESSION_TTL_MS = 30 * 60 * 1000
 const demoAccounts: DemoAccount[] = [
   { email: 'admin@tms.edu.vn', password: 'Admin@123', name: 'Admin TMS', role: 'Quản trị hệ thống' },
   { email: 'manager@tms.edu.vn', password: 'Manager@123', name: 'Linh Trần', role: 'Quản lý đào tạo' },
@@ -176,7 +177,7 @@ function ActionModal({ type, onClose, onSaved }: { type: ActionType; onClose: ()
   return <div className="modal-backdrop" onMouseDown={onClose}><form className="action-modal" onSubmit={save} onMouseDown={(event) => event.stopPropagation()}><div className="modal-heading"><div><p className="eyebrow">INTERACTIVE DEMO</p><h2>{config.title}</h2><p>{config.description}</p></div><button type="button" className="icon-button" onClick={onClose}><X size={18} /></button></div><div className="modal-fields">{config.fields.map((field, index) => <label key={field}>{field}<input required value={values[field] ?? ''} onChange={(event) => setValues({ ...values, [field]: event.target.value })} placeholder={index === 0 ? 'Nhập thông tin...' : 'Chọn hoặc nhập giá trị'} /></label>)}</div><div className="modal-actions"><button type="button" className="button button-ghost" onClick={onClose}>Hủy</button><button type="submit" className="button button-dark"><Check size={15} />{config.submit}</button></div></form></div>
 }
 
-function LoginView({ onLogin }: { onLogin: (account: DemoAccount) => void }) {
+function LoginView({ onLogin, notice = '' }: { onLogin: (account: DemoAccount) => void; notice?: string }) {
   const [email, setEmail] = useState('linh.tran@tms.edu.vn')
   const [password, setPassword] = useState('')
   const [remember, setRemember] = useState(true)
@@ -185,10 +186,12 @@ function LoginView({ onLogin }: { onLogin: (account: DemoAccount) => void }) {
     event.preventDefault()
     const account = demoAccounts.find((item) => item.email.toLowerCase() === email.trim().toLowerCase() && item.password === password)
     if (!account) { setError('Email hoặc mật khẩu không đúng. Hãy chọn một tài khoản demo bên dưới.'); return }
-    if (remember) { window.sessionStorage.setItem('tms_session', 'demo-access-token'); window.sessionStorage.setItem('tms_role', account.role) }
+    window.sessionStorage.setItem('tms_session', 'demo-access-token')
+    window.sessionStorage.setItem('tms_role', account.role)
+    window.sessionStorage.setItem('tms_expires_at', String(Date.now() + SESSION_TTL_MS))
     onLogin(account)
   }
-  return <div className="login-page"><div className="login-glow glow-one" /><div className="login-glow glow-two" /><div className="login-brand"><Logo /><span className="secure-chip"><ShieldCheck size={14} /> JWT protected workspace</span></div><div className="login-layout"><section className="login-story"><Logo /><p className="eyebrow light">CHÀO MỪNG QUAY TRỞ LẠI</p><h1>Vận hành đào tạo<br /><em>thông minh hơn.</em></h1><p>Hệ thống quản lý đào tạo toàn diện giúp doanh nghiệp tự động hóa quy trình, tối ưu nguồn lực và nâng cao chất lượng nhân sự.</p><div className="login-story-stats"><span><strong>▣</strong><small>Quản lý khoa học linh hoạt</small></span><span><strong>◌</strong><small>Theo dõi hiệu suất thông minh</small></span><span><strong>≋</strong><small>Phân tích báo cáo tự động</small></span></div></section><form className="login-card" onSubmit={submit}><div className="login-card-heading"><p className="eyebrow">CHÀO MỪNG QUAY TRỞ LẠI</p><h2>Đăng nhập</h2><p>Nhập thông tin tài khoản của bạn để truy cập hệ thống quản lý đào tạo.</p></div><label>Email<input type="email" value={email} onChange={(event) => setEmail(event.target.value)} placeholder="name@company.com" autoComplete="email" /></label><label>Mật khẩu<div className="password-field"><input type="password" value={password} onChange={(event) => setPassword(event.target.value)} placeholder="Nhập mật khẩu" autoComplete="current-password" /><span><ShieldCheck size={15} /></span></div></label><div className="login-options"><label className="checkbox-label"><input type="checkbox" checked={remember} onChange={(event) => setRemember(event.target.checked)} /> Ghi nhớ đăng nhập</label><button type="button" className="link-button" onClick={() => setError('Đã gửi hướng dẫn đặt lại mật khẩu đến email demo.')}>Quên mật khẩu?</button></div>{error && <p className="login-error">{error}</p>}<button className="button button-dark login-submit" type="submit">Đăng nhập <ArrowUpRight size={16} /></button><div className="login-divider"><span>HOẶC TIẾP TỤC VỚI</span></div><div className="sso-row"><button type="button" className="sso-button" onClick={() => onLogin(demoAccounts[1])}><span className="sso-mark">G</span> Google</button><button type="button" className="sso-button" onClick={() => onLogin(demoAccounts[1])}><span className="sso-mark facebook-mark">f</span> Facebook</button></div><div className="demo-account-list"><p>TÀI KHOẢN DEMO THEO QUYỀN</p>{demoAccounts.map((account) => <button type="button" key={account.email} onClick={() => { setEmail(account.email); setPassword(account.password); setError('') }}><span className="demo-role-dot" /> <span>{account.role}</span><small>{account.email}</small></button>)}</div><p className="login-footnote"><ShieldCheck size={13} /> Dữ liệu được bảo mật theo tiêu chuẩn ISO 27001</p><p className="login-copyright">© 2025 TMS Platform. <span>Điều khoản</span> · <span>Trợ giúp & hỗ trợ</span></p></form></div></div>
+  return <div className="login-page"><div className="login-glow glow-one" /><div className="login-glow glow-two" /><div className="login-brand"><Logo /><span className="secure-chip"><ShieldCheck size={14} /> JWT protected workspace</span></div><div className="login-layout"><section className="login-story"><Logo /><p className="eyebrow light">CHÀO MỪNG QUAY TRỞ LẠI</p><h1>Vận hành đào tạo<br /><em>thông minh hơn.</em></h1><p>Hệ thống quản lý đào tạo toàn diện giúp doanh nghiệp tự động hóa quy trình, tối ưu nguồn lực và nâng cao chất lượng nhân sự.</p><div className="login-story-stats"><span><strong>▣</strong><small>Quản lý khoa học linh hoạt</small></span><span><strong>◌</strong><small>Theo dõi hiệu suất thông minh</small></span><span><strong>≋</strong><small>Phân tích báo cáo tự động</small></span></div></section><form className="login-card" onSubmit={submit}><div className="login-card-heading"><p className="eyebrow">CHÀO MỪNG QUAY TRỞ LẠI</p><h2>Đăng nhập</h2><p>Nhập thông tin tài khoản của bạn để truy cập hệ thống quản lý đào tạo.</p></div>{notice && <p className="login-expired"><Clock3 size={13} />{notice}</p>}<label>Email<input type="email" value={email} onChange={(event) => setEmail(event.target.value)} placeholder="name@company.com" autoComplete="email" /></label><label>Mật khẩu<div className="password-field"><input type="password" value={password} onChange={(event) => setPassword(event.target.value)} placeholder="Nhập mật khẩu" autoComplete="current-password" /><span><ShieldCheck size={15} /></span></div></label><div className="login-options"><label className="checkbox-label"><input type="checkbox" checked={remember} onChange={(event) => setRemember(event.target.checked)} /> Ghi nhớ đăng nhập</label><button type="button" className="link-button" onClick={() => setError('Đã gửi hướng dẫn đặt lại mật khẩu đến email demo.')}>Quên mật khẩu?</button></div>{error && <p className="login-error">{error}</p>}<button className="button button-dark login-submit" type="submit">Đăng nhập <ArrowUpRight size={16} /></button><div className="login-divider"><span>HOẶC TIẾP TỤC VỚI</span></div><div className="sso-row"><button type="button" className="sso-button" onClick={() => onLogin(demoAccounts[1])}><span className="sso-mark">G</span> Google</button><button type="button" className="sso-button" onClick={() => onLogin(demoAccounts[1])}><span className="sso-mark facebook-mark">f</span> Facebook</button></div><div className="demo-account-list"><p>TÀI KHOẢN DEMO THEO QUYỀN</p>{demoAccounts.map((account) => <button type="button" key={account.email} onClick={() => { setEmail(account.email); setPassword(account.password); setError('') }}><span className="demo-role-dot" /> <span>{account.role}</span><small>{account.email}</small></button>)}</div><p className="login-footnote"><ShieldCheck size={13} /> Dữ liệu được bảo mật theo tiêu chuẩn ISO 27001</p><p className="login-copyright">© 2025 TMS Platform. <span>Điều khoản</span> · <span>Trợ giúp & hỗ trợ</span></p></form></div></div>
 }
 
 function SectionHeading({ eyebrow, title, description, action, onAction }: { eyebrow: string; title: string; description?: string; action?: string; onAction?: () => void }) {
@@ -324,7 +327,11 @@ function UsersView({ onToast }: { onToast: (text: string) => void }) {
 }
 
 export default function App() {
-  const [authenticated, setAuthenticated] = useState(() => window.location.pathname !== '/login' && window.sessionStorage.getItem('tms_session') === 'demo-access-token')
+  const [sessionExpired, setSessionExpired] = useState(false)
+  const [authenticated, setAuthenticated] = useState(() => {
+    const expiresAt = Number(window.sessionStorage.getItem('tms_expires_at') ?? 0)
+    return window.location.pathname !== '/login' && window.sessionStorage.getItem('tms_session') === 'demo-access-token' && expiresAt > Date.now()
+  })
   const [view, setView] = useState<ViewKey>('dashboard')
   const [role, setRole] = useState<Role>(() => (window.sessionStorage.getItem('tms_role') as Role) || 'Quản lý đào tạo')
   const [mobileOpen, setMobileOpen] = useState(false)
@@ -332,6 +339,20 @@ export default function App() {
   const [toast, setToast] = useState('')
   const [search, setSearch] = useState('')
   const [action, setAction] = useState<ActionType | null>(null)
+
+  useEffect(() => {
+    if (!authenticated) return undefined
+    const expiresAt = Number(window.sessionStorage.getItem('tms_expires_at') ?? 0)
+    const remaining = Math.max(0, expiresAt - Date.now())
+    const timer = window.setTimeout(() => {
+      window.sessionStorage.removeItem('tms_session')
+      window.sessionStorage.removeItem('tms_role')
+      window.sessionStorage.removeItem('tms_expires_at')
+      setSessionExpired(true)
+      setAuthenticated(false)
+    }, remaining)
+    return () => window.clearTimeout(timer)
+  }, [authenticated])
 
   const allowedViews = roleAccess[role]
   const activeLabel = useMemo(() => navGroups.flatMap((group) => group.items).find((item) => item.id === view)?.label ?? 'Tổng quan', [view])
@@ -371,7 +392,7 @@ export default function App() {
     }
   }
 
-  if (!authenticated) return <LoginView onLogin={(account) => { setRole(account.role); setAuthenticated(true) }} />
+  if (!authenticated) return <LoginView notice={sessionExpired ? 'Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.' : ''} onLogin={(account) => { setSessionExpired(false); setRole(account.role); setAuthenticated(true) }} />
 
   return (
     <div className="app-shell">
