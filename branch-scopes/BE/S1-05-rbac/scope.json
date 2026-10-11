@@ -1,0 +1,13 @@
+{
+  "branch": "feature/S1-05-rbac",
+  "team": "BE",
+  "storyId": "S1-05",
+  "baseBranch": "develop",
+  "scopeFiles": [
+    "backend/src/modules/S1-05-rbac/module.ts",
+    "backend/src/modules/S1-05-rbac/controller.ts",
+    "backend/src/modules/S1-05-rbac/service.ts",
+    "branches/BE/S1-05-rbac/README.md"
+  ],
+  "integration": "Open PR into develop; require at least one reviewer approval."
+}
