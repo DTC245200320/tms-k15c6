@@ -1,0 +1,13 @@
+{
+  "branch": "feature/S2-10-fe-lead-assignment",
+  "team": "FE",
+  "storyId": "S2-10",
+  "baseBranch": "develop",
+  "scopeFiles": [
+    "frontend/src/features/S2-10-fe-lead-assignment/feature.config.ts",
+    "frontend/src/features/S2-10-fe-lead-assignment/api.ts",
+    "frontend/src/features/S2-10-fe-lead-assignment/screen.tsx",
+    "branches/FE/S2-10-fe-lead-assignment/README.md"
+  ],
+  "integration": "Open PR into develop; require at least one reviewer approval."
+}
