@@ -1,0 +1,13 @@
+{
+  "branch": "feature/S2-02-be-user-profile",
+  "team": "BE",
+  "storyId": "S2-02",
+  "baseBranch": "develop",
+  "scopeFiles": [
+    "backend/src/modules/S2-02-be-user-profile/module.ts",
+    "backend/src/modules/S2-02-be-user-profile/controller.ts",
+    "backend/src/modules/S2-02-be-user-profile/service.ts",
+    "branches/BE/S2-02-be-user-profile/README.md"
+  ],
+  "integration": "Open PR into develop; require at least one reviewer approval."
+}
