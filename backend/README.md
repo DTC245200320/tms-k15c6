@@ -1,32 +1,65 @@
 # TMS Backend — NestJS + PostgreSQL
 
-Backend production đặt mục tiêu phục vụ các module auth/RBAC, users, programs, courses, classes, sessions, leads, attendance, assignments, grading, finance, reports và audit logs.
+Backend phục vụ các module auth/RBAC, users, programs, courses, classes, sessions, leads, attendance, assignments, grading, finance, reports và audit logs.
 
-## Auth contract
+## Production runtime
 
-- `POST /auth/login` trả access token ngắn hạn và refresh token dài hạn.
-- `POST /auth/refresh` rotate refresh token; token cũ bị revoke.
-- `POST /auth/logout` revoke session ngay phía server.
-- `POST /auth/change-password` yêu cầu mật khẩu hiện tại và revoke các session khác.
-- `JwtAuthGuard` xác thực access token; `RolesGuard`/`PermissionsGuard` kiểm tra quyền ở server, mặc định deny.
-- Tài khoản bị khóa phải revoke toàn bộ refresh session và không được login.
+Backend dùng PostgreSQL thật qua `DATABASE_URL`. Khi khởi động, `DatabaseService` kiểm tra kết nối, chạy `src/database/schema.sql` và seed idempotent trong `src/database/seed.sql` nếu `AUTO_MIGRATE=true`.
 
-## Cấu trúc dự kiến
+```bash
+cp .env.example .env
+npm install
+npm run build
+npm run start:dev
+```
+
+## JWT API
+
+- `POST /auth/login`: access token 15 phút + refresh token 7 ngày.
+- `POST /auth/refresh`: kiểm tra session trong PostgreSQL và xoay refresh token.
+- `POST /auth/logout`: revoke refresh session.
+- `POST /auth/change-password`: đổi mật khẩu và revoke các phiên cũ.
+- Login failure được đếm; từ lần thất bại thứ 5 tài khoản bị khóa tạm thời.
+
+## Business API
+
+- `/api/v1/overview`
+- `/api/v1/programs`, `/api/v1/courses`
+- `/api/v1/leads`
+- `/api/v1/classes`, `/api/v1/schedule`
+- `/api/v1/attendance`
+- `/api/v1/assignments`
+- `/api/v1/finance/payments`
+- `/api/v1/notifications`
+
+Các API ghi dữ liệu trực tiếp vào bảng PostgreSQL, có `RETURNING`, unique constraints và audit-ready fields. Guard/permission decorators cần được bật trên từng route trước khi public Internet.
+
+## Docker Compose
+
+Từ thư mục gốc:
+
+```bash
+export JWT_ACCESS_SECRET="$(openssl rand -hex 32)"
+export JWT_REFRESH_SECRET="$(openssl rand -hex 32)"
+export VITE_API_URL=http://localhost:3000
+docker compose up --build
+```
+
+- Frontend: `http://localhost:8080`
+- Backend health: `http://localhost:3000/health`
+- PostgreSQL: `localhost:5432`
+
+Tài khoản bootstrap seed phải đổi mật khẩu ngay sau lần deploy đầu tiên:
+
+```text
+admin@tms.edu.vn / Admin@123
+```
+
+## Cấu trúc domain
 
 ```text
 src/
-  auth/          controller, service, jwt strategy, guards, DTO
-  users/         profile, role assignment, lock/unlock, bulk import
-  programs/      program, course, roadmap, course sessions
-  admissions/    public consultation, leads, assignment, funnel
-  classes/       class lifecycle, enrollments, timetable conflicts
-  attendance/    attendance, leave requests, risk flags
-  assignments/   submission versions, rubric, grading
-  finance/       fee plans, payments, receipts, receivables
-  reports/       dashboards, exports, surveys, audit log
-  database/      migrations and seed data
+  auth/          JWT login, refresh rotation, logout, change password
+  api/           PostgreSQL-backed business API
+  database/      schema, seed, DatabaseService, transactions
 ```
-
-## Local run
-
-Copy `.env.example` to `.env`, run `docker compose up postgres backend frontend --build`, then open the frontend. Production reads `DATABASE_URL`, `JWT_ACCESS_SECRET`, `JWT_REFRESH_SECRET`, `FRONTEND_ORIGIN` and never ships these values to the browser.
