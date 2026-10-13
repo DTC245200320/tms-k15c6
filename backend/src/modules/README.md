@@ -1,3 +1,5 @@
-# Backend feature modules
+# Backend modules
 
-Mỗi thư mục tương ứng với một branch BE trong `branches/BE` và có `module.ts`, `controller.ts`, `service.ts`. Đây là điểm bắt đầu cho module NestJS; khi story hoàn thành, bổ sung DTO, guard, migration và test tại cùng thư mục.
+Mỗi story có thư mục riêng với `controller.ts`, `service.ts`, `module.ts`, `dto.ts`, `index.ts`, `README.md`.
+
+Tổng số module: 75
