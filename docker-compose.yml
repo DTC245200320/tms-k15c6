@@ -9,6 +9,11 @@ services:
       - '5432:5432'
     volumes:
       - tms-postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U tms -d tms"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
   backend:
     build: ./backend
     environment:
@@ -20,14 +25,24 @@ services:
     ports:
       - '3000:3000'
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:3000/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
   frontend:
-    build: .
+    build:
+      context: .
+      args:
+        VITE_API_URL: ${VITE_API_URL:-http://localhost:3000}
     environment:
       VITE_API_URL: http://localhost:3000
     ports:
       - '8080:80'
     depends_on:
-      - backend
+      backend:
+        condition: service_healthy
 volumes:
   tms-postgres:
