@@ -70,5 +70,5 @@ Mẫu PR có sẵn checklist này (`.github/pull_request_template.md`).
 - Require a pull request before merging, **tối thiểu 1 approval**, huỷ approval cũ khi có commit mới.
 - Require status checks to pass: chọn **`CI xanh`**; bật "Require branches to be up to date before merging".
 - Không cho push thẳng và không cho force-push vào `develop` / `main`.
-- **Không commit trực tiếp trên giao diện web GitHub** (Add files via upload / Delete file) — dễ làm mất file như vụ PR #24.
+- **Không commit trực tiếp trên giao diện web GitHub** (Add files via upload / Delete file)
 - Chỉ mở PR khi story đã xong; nhánh đang code dở thì để PR ở dạng **Draft**.
