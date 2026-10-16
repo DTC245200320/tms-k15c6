@@ -1,6 +1,0 @@
-# feature/S3-08-be-class-instructor-assignment
-
-Team: BE
-Story: S3-08
-
-Thư mục này là scope riêng cho nhánh `feature/S3-08-be-class-instructor-assignment`. Tạo branch từ `develop`, commit theo `feat(S3-08): ...`, mở PR vào `develop` và chờ ít nhất một reviewer phê duyệt.
