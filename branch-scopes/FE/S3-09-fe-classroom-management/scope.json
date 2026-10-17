@@ -1,0 +1,13 @@
+{
+  "branch": "feature/S3-09-fe-classroom-management",
+  "team": "FE",
+  "storyId": "S3-09",
+  "baseBranch": "develop",
+  "scopeFiles": [
+    "frontend/src/features/S3-09-fe-classroom-management/feature.config.ts",
+    "frontend/src/features/S3-09-fe-classroom-management/api.ts",
+    "frontend/src/features/S3-09-fe-classroom-management/screen.tsx",
+    "branches/FE/S3-09-fe-classroom-management/README.md"
+  ],
+  "integration": "Open PR into develop; require at least one reviewer approval."
+}
