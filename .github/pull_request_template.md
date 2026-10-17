@@ -1,21 +1,23 @@
-## Mô tả
-<!-- Story: S1-xx — làm gì, vì sao. Liên kết Jira: SCRUM-xx -->
+## Story
 
-## Definition of Done (đánh dấu hết trước khi xin review)
-- [ ] Toàn bộ tiêu chí chấp nhận (AC) của story đã được kiểm chứng và đạt
-- [ ] Có unit/e2e test cho service/API mới; độ phủ nhánh mới ≥ 60%
-- [ ] `npm run lint`, `npm run build`, `npm test` pass ở máy mình (CI xanh)
-- [ ] Quyền truy cập được kiểm ở **tầng server** (`@RequirePermission`), không chỉ ẩn ở giao diện
-- [ ] Giao diện (nếu có) hoạt động đúng ở khổ 360px
-- [ ] README / tài liệu API đã cập nhật
-- [ ] Không còn lỗi mức Major trở lên
-- [ ] Nhánh đã cập nhật từ `develop` và **không** chứa file thừa (file ở thư mục gốc, `dist/`, `.env`, `node_modules/`)
+Closes <!-- Jira/GitHub issue, ví dụ S1-01 -->
 
-## Cách kiểm thử
-<!-- Lệnh chạy / các bước bấm / curl mẫu -->
+## Mục tiêu
 
-## Ảnh chụp (nếu có giao diện)
+<!-- Tóm tắt thay đổi -->
 
----
-Merge vào `develop` khi: ít nhất **1 người review phê duyệt** và check **CI xanh** đạt.
-Chỉ chuyển Jira sang Done sau khi PR đã merge và AC đã được PO nghiệm thu.
+## Acceptance criteria
+
+- [ ]
+
+## Kiểm tra
+
+- [ ] `npm run build`
+- [ ] Backend build/test nếu có thay đổi backend
+- [ ] Đã kiểm tra quyền/RBAC và trạng thái lỗi liên quan
+
+## Review checklist
+
+- [ ] Ít nhất 01 reviewer đã phê duyệt trước khi merge vào `develop`
+- [ ] Không có secret hoặc dữ liệu nhạy cảm
+- [ ] Đã xử lý comment của reviewer
