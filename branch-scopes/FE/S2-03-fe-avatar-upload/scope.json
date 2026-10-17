@@ -1,0 +1,13 @@
+{
+  "branch": "feature/S2-03-fe-avatar-upload",
+  "team": "FE",
+  "storyId": "S2-03",
+  "baseBranch": "develop",
+  "scopeFiles": [
+    "frontend/src/features/S2-03-fe-avatar-upload/feature.config.ts",
+    "frontend/src/features/S2-03-fe-avatar-upload/api.ts",
+    "frontend/src/features/S2-03-fe-avatar-upload/screen.tsx",
+    "branches/FE/S2-03-fe-avatar-upload/README.md"
+  ],
+  "integration": "Open PR into develop; require at least one reviewer approval."
+}
