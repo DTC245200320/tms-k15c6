@@ -1,0 +1,13 @@
+{
+  "branch": "feature/S1-04-change-password",
+  "team": "BE",
+  "storyId": "S1-04",
+  "baseBranch": "develop",
+  "scopeFiles": [
+    "backend/src/modules/S1-04-change-password/module.ts",
+    "backend/src/modules/S1-04-change-password/controller.ts",
+    "backend/src/modules/S1-04-change-password/service.ts",
+    "branches/BE/S1-04-change-password/README.md"
+  ],
+  "integration": "Open PR into develop; require at least one reviewer approval."
+}
