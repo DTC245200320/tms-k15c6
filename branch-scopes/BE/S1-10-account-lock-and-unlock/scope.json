@@ -1,0 +1,13 @@
+{
+  "branch": "feature/S1-10-account-lock-and-unlock",
+  "team": "BE",
+  "storyId": "S1-10",
+  "baseBranch": "develop",
+  "scopeFiles": [
+    "backend/src/modules/S1-10-account-lock-and-unlock/module.ts",
+    "backend/src/modules/S1-10-account-lock-and-unlock/controller.ts",
+    "backend/src/modules/S1-10-account-lock-and-unlock/service.ts",
+    "branches/BE/S1-10-account-lock-and-unlock/README.md"
+  ],
+  "integration": "Open PR into develop; require at least one reviewer approval."
+}
