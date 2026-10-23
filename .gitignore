@@ -1,9 +1,0 @@
-node_modules/
-dist/
-backend/dist/
-.env
-.env.*
-!.env.example
-.DS_Store
-coverage/
-*.log
