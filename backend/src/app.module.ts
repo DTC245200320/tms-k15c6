@@ -4,7 +4,8 @@ import { PilotController } from './api/pilot.controller'
 import { JwtModule } from '@nestjs/jwt'
 import { AuthController } from './auth/auth.controller'
 import { AuthService } from './auth/auth.service'
-import { DatabaseService } from './database/database.service'
+import { DatabaseModule } from './database/database.module'
+import { S102SessionLogoutModule } from './modules/S1-02-session-logout/module'
 
 @Controller()
 class HealthController {
@@ -14,5 +15,5 @@ class HealthController {
   }
 }
 
-@Module({ imports: [JwtModule.register({ secret: process.env.JWT_ACCESS_SECRET ?? 'tms-dev-secret-change-me' })], controllers: [HealthController, PilotController, AuthController], providers: [AuthService, DatabaseService] })
+@Module({ imports: [JwtModule.register({ secret: process.env.JWT_ACCESS_SECRET ?? 'tms-dev-secret-change-me' }), DatabaseModule, S102SessionLogoutModule], controllers: [HealthController, PilotController, AuthController], providers: [AuthService] })
 export class AppModule {}

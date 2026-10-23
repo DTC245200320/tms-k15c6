@@ -1,4 +1,7 @@
+import { IsNotEmpty, IsString } from 'class-validator'
+
 export class S102SessionLogoutDto {
-  readonly storyId = 'S1-02'
-  payload: Record<string, unknown> = {}
+  @IsString()
+  @IsNotEmpty()
+  refreshToken!: string
 }

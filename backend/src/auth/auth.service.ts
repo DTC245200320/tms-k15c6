@@ -47,7 +47,6 @@ export class AuthService {
     return this.issueTokens(account.rows[0])
   }
 
-  async logout(refreshToken: string) { await this.db.query(`UPDATE refresh_sessions SET revoked_at=now() WHERE token_hash=$1 AND revoked_at IS NULL`, [this.hashToken(refreshToken)]); return { success: true } }
 
   async changePassword(email: string, currentPassword: string, newPassword: string) {
     const account = await this.findAccount(email)

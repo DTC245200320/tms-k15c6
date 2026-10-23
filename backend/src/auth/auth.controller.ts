@@ -11,9 +11,6 @@ export class AuthController {
   @Post('/refresh')
   refresh(@Body() body: { refreshToken: string }) { return this.auth.refresh(body.refreshToken) }
 
-  @Post('/logout')
-  logout(@Body() body: { refreshToken: string }) { return this.auth.logout(body.refreshToken) }
-
   @Post('/change-password')
   changePassword(@Body() body: { email: string; currentPassword: string; newPassword: string }) { return this.auth.changePassword(body.email, body.currentPassword, body.newPassword) }
 }
