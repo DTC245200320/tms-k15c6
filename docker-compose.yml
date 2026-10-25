@@ -1,0 +1,33 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: tms
+      POSTGRES_USER: tms
+      POSTGRES_PASSWORD: tms
+    ports:
+      - '5432:5432'
+    volumes:
+      - tms-postgres:/var/lib/postgresql/data
+  backend:
+    build: ./backend
+    environment:
+      DATABASE_URL: postgresql://tms:tms@postgres:5432/tms
+      JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET:-local-access-secret-change-me}
+      JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET:-local-refresh-secret-change-me}
+      FRONTEND_ORIGIN: http://localhost:8080
+      PORT: 3000
+    ports:
+      - '3000:3000'
+    depends_on:
+      - postgres
+  frontend:
+    build: .
+    environment:
+      VITE_API_URL: http://localhost:3000
+    ports:
+      - '8080:80'
+    depends_on:
+      - backend
+volumes:
+  tms-postgres:
