@@ -1,0 +1,13 @@
+{
+  "branch": "feature/S1-02-session-logout",
+  "team": "BE",
+  "storyId": "S1-02",
+  "baseBranch": "develop",
+  "scopeFiles": [
+    "backend/src/modules/S1-02-session-logout/module.ts",
+    "backend/src/modules/S1-02-session-logout/controller.ts",
+    "backend/src/modules/S1-02-session-logout/service.ts",
+    "branches/BE/S1-02-session-logout/README.md"
+  ],
+  "integration": "Open PR into develop; require at least one reviewer approval."
+}
