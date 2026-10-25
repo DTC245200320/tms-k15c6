@@ -1,0 +1,13 @@
+{
+  "branch": "feature/S1-09-user-role-assignment",
+  "team": "BE",
+  "storyId": "S1-09",
+  "baseBranch": "develop",
+  "scopeFiles": [
+    "backend/src/modules/S1-09-user-role-assignment/module.ts",
+    "backend/src/modules/S1-09-user-role-assignment/controller.ts",
+    "backend/src/modules/S1-09-user-role-assignment/service.ts",
+    "branches/BE/S1-09-user-role-assignment/README.md"
+  ],
+  "integration": "Open PR into develop; require at least one reviewer approval."
+}
