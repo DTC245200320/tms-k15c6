@@ -1,0 +1,13 @@
+{
+  "branch": "feature/S2-08-be-public-consultation-form",
+  "team": "BE",
+  "storyId": "S2-08",
+  "baseBranch": "develop",
+  "scopeFiles": [
+    "backend/src/modules/S2-08-be-public-consultation-form/module.ts",
+    "backend/src/modules/S2-08-be-public-consultation-form/controller.ts",
+    "backend/src/modules/S2-08-be-public-consultation-form/service.ts",
+    "branches/BE/S2-08-be-public-consultation-form/README.md"
+  ],
+  "integration": "Open PR into develop; require at least one reviewer approval."
+}
