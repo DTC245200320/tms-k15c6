@@ -1,0 +1,13 @@
+{
+  "branch": "feature/S3-02-fe-lead-follow-up",
+  "team": "FE",
+  "storyId": "S3-02",
+  "baseBranch": "develop",
+  "scopeFiles": [
+    "frontend/src/features/S3-02-fe-lead-follow-up/feature.config.ts",
+    "frontend/src/features/S3-02-fe-lead-follow-up/api.ts",
+    "frontend/src/features/S3-02-fe-lead-follow-up/screen.tsx",
+    "branches/FE/S3-02-fe-lead-follow-up/README.md"
+  ],
+  "integration": "Open PR into develop; require at least one reviewer approval."
+}
