@@ -1,0 +1,13 @@
+{
+  "branch": "feature/S2-05-fe-course-catalog",
+  "team": "FE",
+  "storyId": "S2-05",
+  "baseBranch": "develop",
+  "scopeFiles": [
+    "frontend/src/features/S2-05-fe-course-catalog/feature.config.ts",
+    "frontend/src/features/S2-05-fe-course-catalog/api.ts",
+    "frontend/src/features/S2-05-fe-course-catalog/screen.tsx",
+    "branches/FE/S2-05-fe-course-catalog/README.md"
+  ],
+  "integration": "Open PR into develop; require at least one reviewer approval."
+}
