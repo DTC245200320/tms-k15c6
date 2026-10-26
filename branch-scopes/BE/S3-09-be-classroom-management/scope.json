@@ -1,0 +1,13 @@
+{
+  "branch": "feature/S3-09-be-classroom-management",
+  "team": "BE",
+  "storyId": "S3-09",
+  "baseBranch": "develop",
+  "scopeFiles": [
+    "backend/src/modules/S3-09-be-classroom-management/module.ts",
+    "backend/src/modules/S3-09-be-classroom-management/controller.ts",
+    "backend/src/modules/S3-09-be-classroom-management/service.ts",
+    "branches/BE/S3-09-be-classroom-management/README.md"
+  ],
+  "integration": "Open PR into develop; require at least one reviewer approval."
+}
