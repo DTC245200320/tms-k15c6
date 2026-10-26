@@ -1,0 +1,13 @@
+{
+  "branch": "feature/S3-03-be-lead-conversion",
+  "team": "BE",
+  "storyId": "S3-03",
+  "baseBranch": "develop",
+  "scopeFiles": [
+    "backend/src/modules/S3-03-be-lead-conversion/module.ts",
+    "backend/src/modules/S3-03-be-lead-conversion/controller.ts",
+    "backend/src/modules/S3-03-be-lead-conversion/service.ts",
+    "branches/BE/S3-03-be-lead-conversion/README.md"
+  ],
+  "integration": "Open PR into develop; require at least one reviewer approval."
+}

@@ -1,0 +1,13 @@
+{
+  "branch": "feature/S3-05-be-class-opening",
+  "team": "BE",
+  "storyId": "S3-05",
+  "baseBranch": "develop",
+  "scopeFiles": [
+    "backend/src/modules/S3-05-be-class-opening/module.ts",
+    "backend/src/modules/S3-05-be-class-opening/controller.ts",
+    "backend/src/modules/S3-05-be-class-opening/service.ts",
+    "branches/BE/S3-05-be-class-opening/README.md"
+  ],
+  "integration": "Open PR into develop; require at least one reviewer approval."
+}
