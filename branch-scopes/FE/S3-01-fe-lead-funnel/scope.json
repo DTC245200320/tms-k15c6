@@ -1,0 +1,13 @@
+{
+  "branch": "feature/S3-01-fe-lead-funnel",
+  "team": "FE",
+  "storyId": "S3-01",
+  "baseBranch": "develop",
+  "scopeFiles": [
+    "frontend/src/features/S3-01-fe-lead-funnel/feature.config.ts",
+    "frontend/src/features/S3-01-fe-lead-funnel/api.ts",
+    "frontend/src/features/S3-01-fe-lead-funnel/screen.tsx",
+    "branches/FE/S3-01-fe-lead-funnel/README.md"
+  ],
+  "integration": "Open PR into develop; require at least one reviewer approval."
+}

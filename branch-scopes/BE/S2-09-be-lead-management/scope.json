@@ -1,0 +1,13 @@
+{
+  "branch": "feature/S2-09-be-lead-management",
+  "team": "BE",
+  "storyId": "S2-09",
+  "baseBranch": "develop",
+  "scopeFiles": [
+    "backend/src/modules/S2-09-be-lead-management/module.ts",
+    "backend/src/modules/S2-09-be-lead-management/controller.ts",
+    "backend/src/modules/S2-09-be-lead-management/service.ts",
+    "branches/BE/S2-09-be-lead-management/README.md"
+  ],
+  "integration": "Open PR into develop; require at least one reviewer approval."
+}
