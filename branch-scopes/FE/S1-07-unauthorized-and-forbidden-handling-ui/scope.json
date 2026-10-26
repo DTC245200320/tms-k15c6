@@ -1,0 +1,13 @@
+{
+  "branch": "feature/S1-07-unauthorized-and-forbidden-handling-ui",
+  "team": "FE",
+  "storyId": "S1-07",
+  "baseBranch": "develop",
+  "scopeFiles": [
+    "frontend/src/features/S1-07-unauthorized-and-forbidden-handling-ui/feature.config.ts",
+    "frontend/src/features/S1-07-unauthorized-and-forbidden-handling-ui/api.ts",
+    "frontend/src/features/S1-07-unauthorized-and-forbidden-handling-ui/screen.tsx",
+    "branches/FE/S1-07-unauthorized-and-forbidden-handling-ui/README.md"
+  ],
+  "integration": "Open PR into develop; require at least one reviewer approval."
+}
