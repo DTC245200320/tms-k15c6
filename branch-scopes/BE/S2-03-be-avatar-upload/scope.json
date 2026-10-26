@@ -1,0 +1,13 @@
+{
+  "branch": "feature/S2-03-be-avatar-upload",
+  "team": "BE",
+  "storyId": "S2-03",
+  "baseBranch": "develop",
+  "scopeFiles": [
+    "backend/src/modules/S2-03-be-avatar-upload/module.ts",
+    "backend/src/modules/S2-03-be-avatar-upload/controller.ts",
+    "backend/src/modules/S2-03-be-avatar-upload/service.ts",
+    "branches/BE/S2-03-be-avatar-upload/README.md"
+  ],
+  "integration": "Open PR into develop; require at least one reviewer approval."
+}
